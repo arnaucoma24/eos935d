@@ -129,5 +129,6 @@ dmypy.json
 .pyre/
 /data.h5
 
-model/checkpoints/
-model/framework/fit/
+#eosvc managed
+model/checkpoints/*
+model/framework/fit/*
