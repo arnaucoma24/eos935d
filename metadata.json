@@ -44,7 +44,7 @@
     "Docker Architecture": "AMD64",
     "Apptainer": "https://models-sif.s3.eu-north-1.amazonaws.com/eos935d_v3.sif",
     "Model Size": 1294.0,
-    "Environment Size": 2040.0,
+    "Environment Size": 2039.0,
     "Image Size": 4614.53,
     "Computational Performance 1": 40.3,
     "Computational Performance 2": 168.79,
