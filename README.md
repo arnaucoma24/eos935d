@@ -1,6 +1,6 @@
 # MetaTrans: human drug metabolites
 
-Drugs are reshaped in the liver by phase I and phase II reactions that can blunt efficacy or create toxic metabolites, so the likely products matter early. MetaTrans casts biotransformation as translation, fine-tuning a molecular transformer pre-trained on general chemical reactions with curated human metabolic reactions and combining six fine-tuned models whose predictions are pooled. Decoding uses beam search rather than sampling, so the same input always returns the same set of up to fifteen metabolites, with no indication of the enzyme, the rate or whether the metabolite accumulates.
+Drugs are reshaped in the liver by phase I and phase II reactions that can blunt efficacy or create toxic metabolites, so the likely products matter early. MetaTrans casts biotransformation as translation, fine-tuning a molecular transformer pre-trained on general chemical reactions with curated human metabolic reactions and combining six fine-tuned models whose predictions are pooled. Decoding uses beam search rather than sampling, so the same input always returns the same metabolites in the same order (up to thirty), with no indication of the enzyme, the rate or whether it accumulates.
 
 This model was incorporated on 2022-12-16.
 Last packaged on 2026-10-28.
@@ -22,9 +22,9 @@ Last packaged on 2026-10-28.
 - **Input Dimension:** `1`
 
 ### Output
-- **Output Dimension:** `15`
+- **Output Dimension:** `30`
 - **Output Consistency:** `Fixed`
-- **Interpretation:** Up to fifteen human metabolites generated deterministically by beam search from the input compound.
+- **Interpretation:** Up to thirty human metabolites generated deterministically by beam search from the input compound, ordered by how early the six models propose them (columns metabolite_00 onwards; most inputs give fewer than thirty).
 
 Below are the **Output Columns** of the model:
 | Name | Type | Direction | Description |
@@ -40,7 +40,7 @@ Below are the **Output Columns** of the model:
 | metabolite_08 | string |  | Metabolite at index 8 of the source molecule |
 | metabolite_09 | string |  | Metabolite at index 9 of the source molecule |
 
-_10 of 15 columns are shown_
+_10 of 30 columns are shown_
 ### Source and Deployment
 - **Source:** `Local`
 - **Source Type:** `External`
