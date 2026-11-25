@@ -24,7 +24,8 @@ def main(opt):
 	#figures_directory = 'Figures/'
 	models = [1,2,3,4,5,6]
 	beam = 5
-	max_metabolites = 15  # Set the maximum number of metabolites
+	# Beam 5 with six models proposes at most 30 sequences per molecule, so 30 columns never cut a prediction
+	max_metabolites = 30
 
 	pred_lines = {}
 
@@ -65,10 +66,12 @@ def main(opt):
 		for j in range(index, index + beam):
 			for num in range(0, models_count):
 				predictions.add(pred_lines[num][j])
+		# the beam of each model for this molecule, best sequence first
+		beams = [pred_lines[num][index:index + beam] for num in range(0, models_count)]
 		index = index + beam
 		processed, invalid, invalid_count = process_predictions(predictions,smiles,0.25,0.25,False,True)
 		pred_counts.append(len(processed))
-		molID2metabolites[mol_id] = processed
+		molID2metabolites[mol_id] = order_by_beam_rank(processed, beams)
 		# drug = Chem.MolFromSmiles(smiles)
 		# preds = [Chem.MolFromSmiles(pred_smiles) for pred_smiles in processed] 
 
@@ -76,9 +79,7 @@ def main(opt):
 	columns =[f'metabolite_{str(i).zfill(2)}' for i in range(max_metabolites)]
 	data = []
 	for mol_id in molID2metabolites.keys():
-		metabolites = sorted(list(molID2metabolites[mol_id]),key=lambda x: (-len(x), x))
-		# Stereoisomers of one metabolite would take several of the slots, so only the first of each is kept, before the cut at max_metabolites
-		metabolites = drop_stereoisomer_repeats(metabolites)
+		metabolites = molID2metabolites[mol_id]
 		row = []
 		for i in range(max_metabolites):
 			if i < len(metabolites):
