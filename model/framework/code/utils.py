@@ -29,6 +29,40 @@ def drop_stereoisomer_repeats(smiles_list):
             kept.append(smi)
     return kept
 
+def order_by_beam_rank(metabolites, beams):
+	"""Order the metabolites of one molecule by how early the models propose them.
+
+	One stereoisomer is kept per metabolite (the first in length order, then alphabetical). Metabolites are
+	then sorted by the best rank in any model's beam (0 = the model's first choice), then by the number of
+	models that propose them (more first), then alphabetically, so the order is deterministic.
+
+	Parameters
+	----------
+	metabolites : iterable of str
+	    Metabolites that passed the filters.
+	beams : list of list of str
+	    For each model, its beam for this molecule (un-tokenised SMILES), best sequence first.
+
+	Returns
+	-------
+	list of str
+	"""
+	best, models = {}, {}
+	for model, beam in enumerate(beams):
+		for rank, seq in enumerate(beam):
+			if "." in seq:
+				continue
+			mol = Chem.MolFromSmiles(seq)
+			if mol is None:
+				continue
+			flat = Chem.MolToSmiles(mol, isomericSmiles=False)
+			best[flat] = min(best.get(flat, rank), rank)
+			models.setdefault(flat, set()).add(model)
+	kept = drop_stereoisomer_repeats(sorted(metabolites, key=lambda x: (-len(x), x)))
+	flats = {smi: Chem.MolToSmiles(Chem.MolFromSmiles(smi), isomericSmiles=False) for smi in kept}
+	unseen = len(beams[0]) if beams else 0  # a metabolite not found in any beam goes last
+	return sorted(kept, key=lambda smi: (best.get(flats[smi], unseen), -len(models.get(flats[smi], ())), smi))
+
 def randomise_smile(smi):
     # unrestricted
     mol = Chem.MolFromSmiles(smi)
